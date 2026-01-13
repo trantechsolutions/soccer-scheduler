@@ -1,10 +1,28 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { CalendarDaysIcon, UserGroupIcon, PlusCircleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { CalendarDaysIcon, UserGroupIcon, Cog6ToothIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { Toaster } from 'react-hot-toast';
+import { auth } from '../firebase'; // Import auth
+import { signOut, onAuthStateChanged } from 'firebase/auth'; // Import signOut
+import { Outlet } from 'react-router-dom';
 
-export default function AppLayout({ children }) {
+
+export default function AppLayout({ children }) { 
+  const [user, setUser] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check login status to show/hide Logout button
+  useEffect(() => {
+    return onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+  }, []);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate('/login');
+  };
 
   const navigation = [
     { name: 'Schedule', href: '/', icon: CalendarDaysIcon },
@@ -14,15 +32,18 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* 1. Desktop Top Bar / Mobile Header */}
+      {/* Header */}
       <header className="bg-white shadow-sm z-20 sticky top-0">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+          
+          {/* Logo */}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">SoccerScheduler</h1>
+            <h1 className="text-xl font-bold text-slate-800 tracking-tight hidden sm:block">SoccerScheduler</h1>
           </div>
-          {/* Desktop Nav (Hidden on Mobile) */}
-          <div className="hidden md:flex gap-6">
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex gap-6 items-center">
             {navigation.map((item) => (
               <Link 
                 key={item.name} 
@@ -34,16 +55,44 @@ export default function AppLayout({ children }) {
                 {item.name}
               </Link>
             ))}
+            
+            {/* LOGOUT BUTTON (Desktop) */}
+            {user && (
+              <button 
+                onClick={handleLogout}
+                className="ml-4 flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-full transition"
+              >
+                <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                Sign Out
+              </button>
+            )}
+            
+            {!user && (
+               <Link to="/login" className="ml-4 text-sm font-bold text-indigo-600">Login</Link>
+            )}
           </div>
+          
+          {/* Mobile Logout Icon (Top Right) */}
+          <div className="md:hidden">
+             {user ? (
+                <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-500">
+                  <ArrowRightOnRectangleIcon className="w-6 h-6" />
+                </button>
+             ) : (
+                <Link to="/login" className="text-sm font-bold text-indigo-600">Login</Link>
+             )}
+          </div>
+
         </div>
       </header>
 
-      {/* 2. Main Content Area */}
+      {/* Main Content */}
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 py-6 pb-24 md:pb-6">
-        {children}
+        {/* Use Outlet to render the child route */}
+        <Outlet /> 
       </main>
 
-      {/* 3. Mobile Bottom Navigation (Hidden on Desktop) */}
+      {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 pb-safe z-30">
         <div className="flex justify-around items-center h-16">
           {navigation.map((item) => {
@@ -64,7 +113,6 @@ export default function AppLayout({ children }) {
         </div>
       </nav>
 
-      {/* 4. Toast Notifications (Replaces ugly alerts) */}
       <Toaster position="top-center" />
     </div>
   );

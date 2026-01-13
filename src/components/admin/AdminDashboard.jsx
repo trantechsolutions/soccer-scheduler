@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UsersIcon, NoSymbolIcon, ClockIcon, MapPinIcon, ShieldCheckIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, UsersIcon, NoSymbolIcon, ClockIcon, MapPinIcon, ShieldCheckIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
 export default function AdminDashboard() {
   const tools = [
+    { name: 'Edit Schedules', path: '/admin/manage-matches', icon: PencilSquareIcon, color: 'bg-indigo-500' },
     { name: 'Schedule Matches', path: '/admin/matches', icon: CalendarDaysIcon, color: 'bg-blue-500' },
     { name: 'Team Blackouts', path: '/admin/blackouts', icon: NoSymbolIcon, color: 'bg-red-500' },
     { name: 'Manage Complexes', path: '/admin/complexes', icon: MapPinIcon, color: 'bg-orange-500' },    

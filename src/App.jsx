@@ -1,54 +1,61 @@
 import React from 'react';
-import { Routes, Route, Link, HashRouter } from 'react-router-dom';
-import MatchCreator from './components/MatchCreator';
-import ManagerDashboard from './components/ManagerDashboard';
-import PublicSchedule from './components/PublicSchedule';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
+import AppLayout from './components/AppLayout';
+import RequireAuth from './components/RequireAuth'; // <--- Import this
+
+// Public Pages
+import PublicSchedule from './components/PublicSchedule';
+
+// Protected Pages
 import AdminDashboard from './components/admin/AdminDashboard';
+import MatchCreator from './components/MatchCreator';
 import TeamManager from './components/admin/TeamManager';
 import UserManager from './components/admin/UserManager';
 import ComplexManager from './components/admin/ComplexManager';
 import FieldAvailability from './components/admin/FieldAvailability';
 import AdminBlackoutManager from './components/admin/AdminBlackoutManager';
-import AppLayout from './components/AppLayout';
-
-function Layout({ children }) {
-  return (
-    <div>
-      <nav className="p-4 bg-white border-b flex gap-4 justify-center text-sm font-medium">
-        <Link to="/" className="text-blue-600 hover:underline">Schedule</Link>
-        <Link to="/manager" className="text-blue-600 hover:underline">Manager Portal</Link>
-        <Link to="/admin" className="text-blue-600 hover:underline">Admin</Link>
-      </nav>
-      {children}
-    </div>
-  );
-}
+import ManagerDashboard from './components/ManagerDashboard';
+import MatchManager from './components/admin/MatchManager';
 
 export default function App() {
   return (
     <HashRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+      <Routes>
+        {/* 1. Login Page (Public) */}
+        <Route path="/login" element={<Login />} />
 
-          {/* Protected Area */}
-          <Route path="/*" element={
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<PublicSchedule />} />
-              <Route path="/manager" element={<ManagerDashboard />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/matches" element={<MatchCreator />} />
-              <Route path="/admin/complexes" element={<ComplexManager />} />
-              <Route path="/admin/teams" element={<TeamManager />} />
-              <Route path="/admin/users" element={<UserManager />} />
-              <Route path="/admin/availability" element={<FieldAvailability />} />
-              <Route path="/admin/blackouts" element={<AdminBlackoutManager />} />              
-            </Routes>
-          </AppLayout>
-        } />
+        {/* 2. The Main App Wrapper */}
+        <Route path="/" element={<AppLayout />}>
+          
+          {/* Public Route (Anyone can see the schedule) */}
+          <Route index element={<PublicSchedule />} />
+
+          {/* Protected Manager Routes */}
+          <Route path="manager" element={
+            <RequireAuth>
+              <ManagerDashboard />
+            </RequireAuth>
+          } />
+
+          {/* Protected Admin Routes */}
+          <Route path="admin" element={
+            <RequireAuth>
+              <AdminDashboard />
+            </RequireAuth>
+          } />
+          
+          {/* Admin Sub-routes */}
+          <Route path="admin/matches" element={<RequireAuth><MatchCreator /></RequireAuth>} />
+          <Route path="admin/teams" element={<RequireAuth><TeamManager /></RequireAuth>} />
+          <Route path="admin/users" element={<RequireAuth><UserManager /></RequireAuth>} />
+          <Route path="admin/complexes" element={<RequireAuth><ComplexManager /></RequireAuth>} />
+          <Route path="admin/availability" element={<RequireAuth><FieldAvailability /></RequireAuth>} />
+          <Route path="admin/blackouts" element={<RequireAuth><AdminBlackoutManager /></RequireAuth>} />
+          <Route path="admin/manage-matches" element={<RequireAuth><MatchManager /></RequireAuth>} />
+        
+        </Route>
       </Routes>
-      {/* <DevTools /> Keep this for testing if you want */}
     </HashRouter>
   );
 }
