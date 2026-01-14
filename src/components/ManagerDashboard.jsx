@@ -181,6 +181,7 @@ export default function ManagerDashboard() {
           {/* Schedule Game Button */}
           <Link 
             to="/manager/schedule" 
+            state={{ preselectedTeamId: selectedTeamId }}
             className="flex items-center justify-center gap-2 bg-slate-800 text-white px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-900 transition shadow-sm"
           >
             <CalendarDaysIcon className="w-5 h-5" />

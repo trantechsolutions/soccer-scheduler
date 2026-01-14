@@ -23,7 +23,10 @@ export default function FieldAvailability() {
   useEffect(() => {
     const fetchComplexes = async () => {
       const snap = await getDocs(collection(db, 'complexes'));
-      setComplexes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      const myComplexes = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(c => c.isManaged === true);
+      setComplexes(myComplexes);
     };
     fetchComplexes();
   }, []);

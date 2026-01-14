@@ -5,7 +5,7 @@ import AppLayout from './components/AppLayout';
 import RequireAuth from './components/RequireAuth'; // <--- Import this
 
 // Public Pages
-import PublicSchedule from './components/PublicSchedule';
+import ClubSchedule from './components/ClubSchedule';
 import PublicTeamAvailability from './components/PublicTeamAvailability';
 
 // Protected Pages
@@ -31,8 +31,14 @@ export default function App() {
         <Route path="/" element={<AppLayout />}>
           
           {/* Public Route (Anyone can see the schedule) */}
-          <Route index element={<PublicSchedule />} />
           <Route path="team/:teamId/availability" element={<PublicTeamAvailability />} />
+
+          {/* Protected Club Schedule */}
+          <Route index element={
+            <RequireAuth>
+              <ClubSchedule />
+            </RequireAuth>
+          } />
 
           {/* Protected Manager Routes */}
           <Route path="manager" element={

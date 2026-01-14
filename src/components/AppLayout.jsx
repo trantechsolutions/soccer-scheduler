@@ -25,7 +25,7 @@ export default function AppLayout({ children }) {
   };
 
   const navigation = [
-    { name: 'Schedule', href: '/', icon: CalendarDaysIcon },
+    { name: 'Club Schedule', href: '/', icon: CalendarDaysIcon },
     { name: 'My Team', href: '/manager', icon: UserGroupIcon },
     { name: 'Admin', href: '/admin', icon: Cog6ToothIcon },
   ];
