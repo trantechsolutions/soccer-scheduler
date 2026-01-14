@@ -19,11 +19,13 @@ export default function MatchCreator() {
   const [awaySelection, setAwaySelection] = useState({ type: 'existing', id: '', name: '' });
   const [selectedComplexId, setSelectedComplexId] = useState('');
   const [selectedFieldId, setSelectedFieldId] = useState('');
+  const [availabilityWarning, setAvailabilityWarning] = useState(null);
   
   const [date, setDate] = useState('');
   const [duration, setDuration] = useState(90);
   const [selectedSlot, setSelectedSlot] = useState(null); // The chosen time string '14:00'
   const [availableSlots, setAvailableSlots] = useState([]); // Calculated valid slots
+  const [allAvailability, setAllAvailability] = useState([]);
   
   const [status, setStatus] = useState({ type: 'idle', msgs: [] });
 
@@ -40,6 +42,16 @@ export default function MatchCreator() {
       setAllFields(fieldsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
     };
     fetchResources();
+
+    const fetchAvail = async () => {
+    const q = query(collection(db, "requests"), where("type", "==", "available"));
+    const snap = await getDocs(q);
+    setAllAvailability(snap.docs.map(d => ({
+          id: d.id, ...d.data(), 
+          start: d.data().start.toDate(), end: d.data().end.toDate()
+      })));
+    }
+    fetchAvail();
   }, []);
 
   // 2. Filter Fields by Complex
@@ -88,6 +100,29 @@ export default function MatchCreator() {
 
     setAvailableSlots(slots);
   }, [date, selectedFieldId, duration, matches, permits]);
+
+  // 3. The Checker Function
+  useEffect(() => {
+    if (!date || !homeSelection.id || homeSelection.id === 'TEMP') {
+      setAvailabilityWarning(null);
+      return;
+    }
+
+    const selectedDate = parseISO(date);
+
+    // Check Home Team
+    const homeAvail = allAvailability.find(req => 
+      req.teamId === homeSelection.id &&
+      isWithinInterval(selectedDate, { start: req.start, end: req.end })
+    );
+
+    if (!homeAvail) {
+      setAvailabilityWarning(`Warning: ${homeSelection.name} has NOT listed this date as available.`);
+    } else {
+      setAvailabilityWarning(null);
+    }
+
+  }, [date, homeSelection, allAvailability]);
 
 
   // 4. Helper: Final Object Construction
@@ -245,7 +280,14 @@ export default function MatchCreator() {
                </div>
              )}
           </div>
-
+          
+          {availabilityWarning && (
+            <div className="mb-4 p-3 bg-yellow-50 text-yellow-800 text-sm font-bold border border-yellow-200 rounded flex items-center gap-2">
+              <ExclamationTriangleIcon className="w-5 h-5" />
+              {availabilityWarning}
+            </div>
+          )}
+          
           {/* STATUS & SUBMIT */}
           {status.type === 'error' && (
             <div className="p-3 bg-red-50 text-red-700 rounded text-sm font-medium border border-red-100">

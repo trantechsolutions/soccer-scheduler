@@ -6,6 +6,7 @@ import RequireAuth from './components/RequireAuth'; // <--- Import this
 
 // Public Pages
 import PublicSchedule from './components/PublicSchedule';
+import PublicTeamAvailability from './components/PublicTeamAvailability';
 
 // Protected Pages
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -17,6 +18,7 @@ import FieldAvailability from './components/admin/FieldAvailability';
 import AdminBlackoutManager from './components/admin/AdminBlackoutManager';
 import ManagerDashboard from './components/ManagerDashboard';
 import MatchManager from './components/admin/MatchManager';
+import ManagerMatchCreator from './components/ManagerMatchCreator';
 
 export default function App() {
   return (
@@ -30,6 +32,7 @@ export default function App() {
           
           {/* Public Route (Anyone can see the schedule) */}
           <Route index element={<PublicSchedule />} />
+          <Route path="team/:teamId/availability" element={<PublicTeamAvailability />} />
 
           {/* Protected Manager Routes */}
           <Route path="manager" element={
@@ -37,6 +40,7 @@ export default function App() {
               <ManagerDashboard />
             </RequireAuth>
           } />
+          <Route path="manager/schedule" element={<RequireAuth><ManagerMatchCreator /></RequireAuth>} />
 
           {/* Protected Admin Routes */}
           <Route path="admin" element={

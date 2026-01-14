@@ -6,7 +6,7 @@ export default function AdminDashboard() {
   const tools = [
     { name: 'Edit Schedules', path: '/admin/manage-matches', icon: PencilSquareIcon, color: 'bg-indigo-500' },
     { name: 'Schedule Matches', path: '/admin/matches', icon: CalendarDaysIcon, color: 'bg-blue-500' },
-    { name: 'Team Blackouts', path: '/admin/blackouts', icon: NoSymbolIcon, color: 'bg-red-500' },
+    { name: 'Club Blackouts', path: '/admin/blackouts', icon: NoSymbolIcon, color: 'bg-red-500' },
     { name: 'Manage Complexes', path: '/admin/complexes', icon: MapPinIcon, color: 'bg-orange-500' },    
     { name: 'Field Availability', path: '/admin/availability', icon: ClockIcon, color: 'bg-teal-500' },
     { name: 'Manage Teams', path: '/admin/teams', icon: UsersIcon, color: 'bg-green-500' },
