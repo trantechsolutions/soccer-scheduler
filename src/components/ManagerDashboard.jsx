@@ -47,12 +47,29 @@ export default function ManagerDashboard() {
         setIsAdmin(userRole === 'admin');
 
         let availableTeams = [];
+        
+        // 1. Fetch ALL teams first (needed to map IDs to Names)
+        const allTeamsSnap = await getDocs(collection(db, 'teams'));
+        const allTeamsData = allTeamsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
         if (userRole === 'admin') {
-          const allTeamsSnap = await getDocs(collection(db, 'teams'));
-          availableTeams = allTeamsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        } else if (userData.teamId) {
-           const teamDoc = await getDoc(doc(db, 'teams', userData.teamId));
-           if (teamDoc.exists()) availableTeams = [{ id: teamDoc.id, ...teamDoc.data() }];
+          // Admin gets everything
+          availableTeams = allTeamsData;
+        } else {
+          // Manager: Determine allowed IDs
+          let allowedIds = [];
+          
+          // Support NEW Array format
+          if (userData.managedTeamIds && Array.isArray(userData.managedTeamIds)) {
+            allowedIds = userData.managedTeamIds;
+          } 
+          // Support OLD String format (Backward Compatibility)
+          else if (userData.teamId) {
+            allowedIds = [userData.teamId];
+          }
+
+          // Filter the master list
+          availableTeams = allTeamsData.filter(t => allowedIds.includes(t.id));
         }
 
         availableTeams.sort((a, b) => a.name.localeCompare(b.name));

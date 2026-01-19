@@ -69,9 +69,17 @@ export default function ManagerMatchCreator() {
         let manageList = [];
         if (userIsAdmin) {
           manageList = allTeams;
-        } else if (userData.teamId) {
-          const assignedTeam = allTeams.find(t => t.id === userData.teamId);
-          if (assignedTeam) manageList = [assignedTeam];
+        } else {
+          // Determine IDs
+          let allowedIds = [];
+          if (userData.managedTeamIds && Array.isArray(userData.managedTeamIds)) {
+            allowedIds = userData.managedTeamIds;
+          } else if (userData.teamId) {
+            allowedIds = [userData.teamId];
+          }
+          
+          // Filter
+          manageList = allTeams.filter(t => allowedIds.includes(t.id));
         }
         setMyManagedTeams(manageList);
 
